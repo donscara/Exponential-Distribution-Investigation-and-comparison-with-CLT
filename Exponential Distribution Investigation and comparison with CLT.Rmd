@@ -1,0 +1,106 @@
+---
+title: "Exponential Distribution Investigation and comparison with CLT"
+author: "Donato Scarano"
+date: "03 luglio 2018"
+output: html_document
+---
+
+#Introduction
+
+We will investigate the exponential distribution in R and compare it with the Central Limit Theorem. 
+
+The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter. 
+
+The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda. 
+
+We have set lambda = 0.2 for all of the simulations. 
+
+We investigate the distribution of averages of 40 exponentials and we will do 1000 simulations.
+
+We illustrate via simulation and associated explanatory text the properties of the distribution of the mean of 40 exponentials. 
+
+```{r echo=TRUE}
+set.seed(1000)
+lambda<-0.2
+n<-40
+simulation<-1000
+simdata<-replicate(simulation,rexp(n,lambda))
+str(simdata)
+```
+
+#Show the sample mean and compare it to the theoretical mean of the distribution.
+
+Let us calculate the sample mean of the simulations above:
+
+```{r echo=TRUE}
+meandata<-apply(simdata,2,mean)
+str(meandata)
+meansim<-mean(meandata)
+meansim
+
+```
+
+then we calculate both the theoretical and the simulation mean, standard deviation, variance:
+
+```{r echo=TRUE}
+print("THEORETICAL")
+meantheory<-1/lambda
+meantheory
+sdtheory <- (1/lambda)/sqrt(n)
+sdtheory
+vartheory <- sdtheory^2
+vartheory
+print("SIMULATION")
+meansim<-mean(meandata)
+meansim
+sdsim<-sd(meandata)
+sdsim
+varsim<-sdsim^2
+varsim
+```
+
+```{r echo=TRUE}
+hist(meandata,xlab="mean",main="Distribution of Simulations")
+abline(v=meantheory,col="black",lwd=4, lty=1)
+abline(v=meansim, col="red",lwd=5,lty=2)
+```
+
+As we can see the theoretical mean is equal to 5 (black line) and is very close to the mean from the simulation (red dotted line) which is equal to 4.99.
+
+#Show how variable the sample is (via variance) and compare it to the theoretical variance of the distribution.
+
+Theoretical Variance:
+```{r echo=TRUE}
+"THEORETICAL VARIANCE"
+vartheory <- sdtheory^2
+vartheory
+"SIMULATION VARIANCE"
+varsim<-sdsim^2
+varsim
+```
+
+#Show that the distribution is approximately normal.
+
+We focus on the difference between the distribution of a large collection of random exponentials and the distribution of a large collection of averages of 40 exponentials.
+
+
+
+```{r echo=TRUE}
+meanframe<-data.frame(meandata)
+g<-ggplot(data=meanframe,aes(x=meandata))
+g<-g+geom_histogram(aes(y=..density..),binwidth = 0.1)
+g<-g+stat_function(fun=dnorm,args = list(mean=meantheory,sd=sdtheory),lwd=2, color="red")
+g
+```
+
+As we can see on graph above the distribution is approximately normal.
+
+As for the averages of 40 exponentials:
+
+```{r echo=TRUE}
+qqnorm(meandata)
+qqline(meandata, col = 2)
+```
+
+
+
